@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("./models/User");
+const Course = require("./models/Course");
 // const authRoutes = require("./routes/authRoutes");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -13,6 +14,30 @@ const app = express();
 dotenv.config();
 app.use(express.json());
 // app.use("/api/auth", authRoutes);
+
+// authenticate - check the authorization token is valid or not
+
+const authenticate = async (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.status(401);
+
+  jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
+    if (err) return res.status(403);
+
+    req.user = user;
+    next();
+  });
+};
+
+const teacherOnly = async (req, res, next) => {
+  if (req.user.role !== "teacher") {
+    return res.status(403).json({ message: "Access denied!, Teachers Only" });
+  }
+  next();
+};
 
 const signup = async (req, res) => {
   try {
@@ -107,8 +132,32 @@ const signin = async (req, res) => {
   }
 };
 
+const createCourse = async (req, res) => {
+  try {
+    const { title, videos } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    const course = new Course({
+      title,
+      instructor: req.user.id,
+      videos,
+    });
+
+    await course.save();
+
+    user.courses.push(course._id);
+    await user.save();
+
+    res.status(201).json(course);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 app.post("/signup", signup);
 app.post("/signin", signin);
+app.post("/createcourse", authenticate, teacherOnly, createCourse);
 
 connectDB()
   .then(() => {
