@@ -159,11 +159,14 @@ const createCourse = async (req, res) => {
         (total, section) => total + section.content.length,
         0
       ),
-    }).populate("instructor");
+    });
 
     await course.save();
+    const user = await User.findById(req.user.id);
 
-    const courses = await Course.find().populate("instructor").exec();
+    user.courses.push(course._id);
+
+    await user.save();
 
     res.status(201).json(course);
   } catch (err) {
@@ -171,9 +174,49 @@ const createCourse = async (req, res) => {
   }
 };
 
+const subscribe = async (req, res) => {
+  // get the course id
+
+  try {
+    const courseId = req.params.courseId;
+
+    // check if user already subsribed to that course
+
+    const s_user = await User.findById(req.user.id);
+
+    //check if course is of the user.
+    console.log(req.user);
+
+    const s_course = await Course.findById(courseId);
+    console.log(s_course);
+    if (s_user.id === s_course.instructor) {
+      return res
+        .status(401)
+        .json({ message: "Cannot subscribe to own course" });
+    }
+
+    if (s_user.courses.some((x) => x == courseId)) {
+      return res
+        .status(400)
+        .json({ message: "Already Subscirbed to the Course!" });
+    }
+    // push to users courses.
+
+    s_user.courses.push(courseId);
+
+    await s_user.save();
+
+    res.status(201).json({ message: "Subscribed" });
+  } catch (err) {
+    res
+      .status(501)
+      .json({ message: "Internal server error", error: err.message });
+  }
+};
 app.post("/signup", signup);
 app.post("/signin", signin);
 app.post("/createcourse", authenticate, teacherOnly, createCourse);
+app.post("/:courseId/subscribe", authenticate, subscribe);
 
 connectDB()
   .then(() => {
