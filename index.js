@@ -134,20 +134,36 @@ const signin = async (req, res) => {
 
 const createCourse = async (req, res) => {
   try {
-    const { title, videos } = req.body;
-
-    const user = await User.findById(req.user.id);
-
-    const course = new Course({
+    const {
       title,
+      description,
+      price,
+      level,
+      category,
+      prerequisites,
+      whatYouWillLearn,
+      sections,
+    } = req.body;
+
+    const course = await new Course({
+      title,
+      description,
       instructor: req.user.id,
-      videos,
-    });
+      price,
+      level,
+      category,
+      prerequisites,
+      whatYouWillLearn,
+      sections,
+      totalLectures: sections.reduce(
+        (total, section) => total + section.content.length,
+        0
+      ),
+    }).populate("instructor");
 
     await course.save();
 
-    user.courses.push(course._id);
-    await user.save();
+    const courses = await Course.find().populate("instructor").exec();
 
     res.status(201).json(course);
   } catch (err) {
