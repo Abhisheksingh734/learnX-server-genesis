@@ -19,45 +19,48 @@ const courseSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    sections: [
-      {
-        title: { type: String, required: true },
-        order: { type: Number, required: true },
-        content: [
-          {
-            title: { type: String, required: true },
-            type: {
-              type: String,
-              required: true,
-              enum: ["video", "document", "quiz", "assignment", "resource"],
+    sections: {
+      type: [
+        {
+          title: { type: String, required: true },
+          order: { type: Number, required: true },
+          content: [
+            {
+              title: { type: String, required: true },
+              type: {
+                type: String,
+                required: true,
+                enum: ["video", "document", "quiz", "assignment", "resource"],
+              },
+              url: String,
+              description: String,
+              // Different content types can have different properties
+              details: {
+                // For videos
+                videoUrl: String,
+                duration: Number, // in minutes
+                // For documents/resources
+                fileUrl: String,
+                fileType: String, // pdf, doc, etc.
+                // For assignments
+                instructions: String,
+                dueDate: Date,
+                // For quizzes
+                questions: [
+                  {
+                    question: String,
+                    options: [String],
+                    correctAnswer: Number,
+                  },
+                ],
+              },
+              order: { type: Number, required: true },
             },
-            description: String,
-            // Different content types can have different properties
-            details: {
-              // For videos
-              videoUrl: String,
-              duration: Number, // in minutes
-              // For documents/resources
-              fileUrl: String,
-              fileType: String, // pdf, doc, etc.
-              // For assignments
-              instructions: String,
-              dueDate: Date,
-              // For quizzes
-              questions: [
-                {
-                  question: String,
-                  options: [String],
-                  correctAnswer: Number,
-                },
-              ],
-            },
-            order: { type: Number, required: true },
-          },
-        ],
-      },
-    ],
-
+          ],
+        },
+      ],
+      default: [],
+    },
     level: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],

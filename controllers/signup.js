@@ -3,6 +3,8 @@ const Course = require("../models/Course");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+const { authEmailValidator, authPasswordValidator } = require("../utils/auth");
+
 const signup = async (req, res) => {
   try {
     // get data from req

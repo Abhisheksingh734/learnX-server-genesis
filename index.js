@@ -7,6 +7,13 @@ const createCourse = require("./controllers/createCourse");
 const authenticate = require("./controllers/authenticate");
 const subscribe = require("./controllers/subscribe");
 const teacherOnly = require("./controllers/teacherOnly");
+const addSection = require("./controllers/addSection");
+const upload = require("./config/multer");
+const {
+  uploadVideo,
+  uploadDocument,
+  uploadResource,
+} = require("./controllers/uploadVideo");
 
 const dotenv = require("dotenv");
 
@@ -16,12 +23,41 @@ exports.app = app;
 
 dotenv.config();
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 // app.use("/api/auth", authRoutes);
 
 app.post("/signup", signup);
 app.post("/signin", signin);
 app.post("/createcourse", authenticate, teacherOnly, createCourse);
 app.post("/:courseId/subscribe", authenticate, subscribe);
+app.post(
+  "/courses/:courseId/add-section",
+  authenticate,
+  teacherOnly,
+  addSection
+);
+
+app.post(
+  "/courses/:courseId/sections/:sectionId/upload-video",
+  authenticate,
+  teacherOnly,
+  upload.single("video"),
+  uploadVideo
+);
+app.post(
+  "/courses/:courseId/sections/:sectionId/upload-document",
+  authenticate,
+  teacherOnly,
+  upload.single("document"),
+  uploadDocument
+);
+app.post(
+  "/courses/:courseId/sections/:sectionId/upload-resource",
+  authenticate,
+  teacherOnly,
+  upload.single("resource"),
+  uploadResource
+);
 
 connectDB()
   .then(() => {

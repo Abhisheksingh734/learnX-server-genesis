@@ -24,8 +24,8 @@ const createCourse = async (req, res) => {
       prerequisites,
       whatYouWillLearn,
       sections,
-      totalLectures: sections.reduce(
-        (total, section) => total + section.content.length,
+      totalLectures: (sections || []).reduce(
+        (total, section) => total + (section.content || []).length,
         0
       ),
     });
