@@ -25,18 +25,25 @@ const app = express();
 exports.app = app;
 
 dotenv.config();
+
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 // app.use("/api/auth", authRoutes);
 
+// auth controller ---------------------
+const authRouter = require("./routes/authRouter");
+const userRouter = require("./routes/userRoutes");
+
+app.use("/auth", authRouter);
+app.use("/user", userRouter);
 app.post("/signup", signup);
 app.post("/signin", signin);
 app.post("/createcourse", authenticate, teacherOnly, createCourse);
 
-app.get("/user/profile", authenticate, getUserProfile);
-app.get("/courses", getCourses);
-app.get("/user/:userId/profile", getUserPublicProfile);
+// app.get("/user/profile", authenticate, getUserProfile);
+// app.get("/user/:userId/profile", getUserPublicProfile);
 
+app.get("/courses", getCourses);
 app.post("/:courseId/subscribe", authenticate, subscribe);
 app.post(
   "/courses/:courseId/add-section",
