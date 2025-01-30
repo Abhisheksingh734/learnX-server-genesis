@@ -8,6 +8,9 @@ const authenticate = require("./controllers/authenticate");
 const subscribe = require("./controllers/subscribe");
 const teacherOnly = require("./controllers/teacherOnly");
 const addSection = require("./controllers/addSection");
+const getCourses = require("./controllers/getCourses");
+const getUserProfile = require("./controllers/getUserProfile");
+const getUserPublicProfile = require("./controllers/getUserPublicProfile");
 const upload = require("./config/multer");
 const {
   uploadVideo,
@@ -29,6 +32,11 @@ app.use("/uploads", express.static("uploads"));
 app.post("/signup", signup);
 app.post("/signin", signin);
 app.post("/createcourse", authenticate, teacherOnly, createCourse);
+
+app.get("/user/profile", authenticate, getUserProfile);
+app.get("/courses", getCourses);
+app.get("/user/:userId/profile", getUserPublicProfile);
+
 app.post("/:courseId/subscribe", authenticate, subscribe);
 app.post(
   "/courses/:courseId/add-section",
@@ -69,3 +77,5 @@ connectDB()
   .catch((err) => {
     console.error("Connection unsuccessful:", err.message);
   });
+
+module.exports = app;

@@ -7,8 +7,6 @@ const { authEmailValidator, authPasswordValidator } = require("../utils/auth");
 
 const signup = async (req, res) => {
   try {
-    // get data from req
-    // console.log(req.body);
     const { name, email, password, role } = req.body;
 
     if (!authEmailValidator(email) || !authPasswordValidator(password)) {
@@ -19,7 +17,6 @@ const signup = async (req, res) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      console.log("This user already exists blud", userExists);
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -29,7 +26,6 @@ const signup = async (req, res) => {
     const hashPassword = await bcrypt.hash(password, salt);
 
     // create user
-
     const newUser = new User({
       name,
       email,
@@ -38,7 +34,6 @@ const signup = async (req, res) => {
     });
 
     await newUser.save();
-
     //generate token
 
     const data = { id: newUser._id, email: newUser.email, role: newUser.role };
