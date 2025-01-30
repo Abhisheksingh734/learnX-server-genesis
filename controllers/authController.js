@@ -56,7 +56,6 @@ const signup = async (req, res) => {
 
 const signin = async (req, res) => {
   try {
-    console.log("entering signin");
     const { email, password } = req.body;
 
     if (!authEmailValidator(email) || !authPasswordValidator(password)) {

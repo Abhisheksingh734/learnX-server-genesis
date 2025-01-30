@@ -5,7 +5,7 @@ const {
   getUserPublicProfile,
 } = require("../controllers/userController");
 
-const authenticate = require("../controllers/authenticate");
+const authenticate = require("../middlewares/authenticate");
 
 const router = express.Router();
 

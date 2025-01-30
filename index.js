@@ -1,78 +1,27 @@
 const express = require("express");
-
-// -- controllers
-const signup = require("./controllers/signup");
-const signin = require("./controllers/signin");
-const createCourse = require("./controllers/createCourse");
-const authenticate = require("./controllers/authenticate");
-const subscribe = require("./controllers/subscribe");
-const teacherOnly = require("./controllers/teacherOnly");
-const addSection = require("./controllers/addSection");
-const getCourses = require("./controllers/getCourses");
-const getUserProfile = require("./controllers/getUserProfile");
-const getUserPublicProfile = require("./controllers/getUserPublicProfile");
-const upload = require("./config/multer");
-const {
-  uploadVideo,
-  uploadDocument,
-  uploadResource,
-} = require("./controllers/uploadVideo");
+const morgan = require("morgan");
 
 const dotenv = require("dotenv");
 
 const connectDB = require("./config/db");
 const app = express();
-exports.app = app;
 
 dotenv.config();
-
+app.use(morgan("dev"));
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
-// app.use("/api/auth", authRoutes);
 
-// auth controller ---------------------
+//controller ---------------------
 const authRouter = require("./routes/authRouter");
 const userRouter = require("./routes/userRoutes");
+const courseRouter = require("./routes/courseRouter");
+const uploadRouter = require("./routes/uploadRouter");
 
+// routers ------------------------------------------------------
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
-app.post("/signup", signup);
-app.post("/signin", signin);
-app.post("/createcourse", authenticate, teacherOnly, createCourse);
-
-// app.get("/user/profile", authenticate, getUserProfile);
-// app.get("/user/:userId/profile", getUserPublicProfile);
-
-app.get("/courses", getCourses);
-app.post("/:courseId/subscribe", authenticate, subscribe);
-app.post(
-  "/courses/:courseId/add-section",
-  authenticate,
-  teacherOnly,
-  addSection
-);
-
-app.post(
-  "/courses/:courseId/sections/:sectionId/upload-video",
-  authenticate,
-  teacherOnly,
-  upload.single("video"),
-  uploadVideo
-);
-app.post(
-  "/courses/:courseId/sections/:sectionId/upload-document",
-  authenticate,
-  teacherOnly,
-  upload.single("document"),
-  uploadDocument
-);
-app.post(
-  "/courses/:courseId/sections/:sectionId/upload-resource",
-  authenticate,
-  teacherOnly,
-  upload.single("resource"),
-  uploadResource
-);
+app.use("/course", courseRouter);
+app.use("/upload", uploadRouter);
 
 connectDB()
   .then(() => {
